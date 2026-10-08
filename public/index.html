@@ -1,0 +1,855 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wensenlijst</title>
+<meta name="description" content="Samen cadeauwensen bijhouden voor Sinterklaas, Kerst en Oud en Nieuw.">
+<meta name="theme-color" content="#f7f2ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1214" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Wensen">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --paper: #f7f2ea;
+  --card: #fffdf9;
+  --rule: #e8dfd2;
+  --rule-strong: #d3c5b2;
+  --ink: #2a1d1f;
+  --ink-soft: #75666a;
+  --accent: #a3243b;
+  --accent-ink: #ffffff;
+  --accent-soft: #f8e4e6;
+  --pine: #23704f;
+  --pine-soft: #e2f1e8;
+  --gold: #a26a10;
+  --gold-soft: #fbefd6;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius: 14px;
+  --shadow: 0 1px 2px rgba(60, 30, 20, .06), 0 4px 14px rgba(60, 30, 20, .05);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #1a1214; --card: #241a1c; --rule: #382b2e; --rule-strong: #4d3d40;
+    --ink: #f4ebe6; --ink-soft: #b3a2a3; --accent: #f07a8c; --accent-ink: #1a1214; --accent-soft: #3d2128;
+    --pine: #79d3a6; --pine-soft: #193328; --gold: #f0bf6a; --gold-soft: #3a2c14;
+    --shadow: none;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #1a1214; --card: #241a1c; --rule: #382b2e; --rule-strong: #4d3d40;
+  --ink: #f4ebe6; --ink-soft: #b3a2a3; --accent: #f07a8c; --accent-ink: #1a1214; --accent-soft: #3d2128;
+  --pine: #79d3a6; --pine-soft: #193328; --gold: #f0bf6a; --gold-soft: #3a2c14;
+  --shadow: none;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { color-scheme: light; }
+body {
+  margin: 0; min-height: 100vh; background: var(--paper); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.4; -webkit-tap-highlight-color: transparent;
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+}
+[hidden] { display: none !important; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+a { color: var(--accent); }
+
+.wrap { max-width: 720px; margin: 0 auto; padding: 14px 16px 64px; display: flex; flex-direction: column; gap: 16px; }
+header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.brand h1 { font-family: var(--font-display); font-weight: 700; font-size: 24px; margin: 0; letter-spacing: -0.01em; }
+.logo { width: 28px; height: 28px; flex: none; }
+.status { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--pine-soft); color: var(--pine); white-space: nowrap; }
+.status.off { background: var(--gold-soft); color: var(--gold); }
+
+h2 { font-family: var(--font-display); font-size: 20px; margin: 0; line-height: 1.2; text-wrap: balance; }
+h3 { font-size: 15px; margin: 0; }
+p { margin: 0; }
+.muted { color: var(--ink-soft); }
+.small { font-size: 14px; }
+.tiny { font-size: 12px; }
+
+.card { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow); }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.spacer { flex: 1; }
+.stack { display: flex; flex-direction: column; gap: 10px; }
+
+.btn { border: 1px solid var(--rule-strong); background: var(--card); border-radius: 10px; padding: 10px 14px; font-weight: 600; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; color: var(--ink); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.pine { background: var(--pine); border-color: var(--pine); color: var(--card); }
+.btn.ghost { border-color: transparent; background: transparent; color: var(--accent); padding-inline: 8px; }
+.btn.danger { color: var(--accent); }
+.btn.block { width: 100%; }
+.btn.sm { min-height: 36px; padding: 6px 10px; font-size: 14px; }
+.btn:disabled { opacity: .5; cursor: default; }
+
+label.field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; }
+label.field .hint { font-weight: 400; color: var(--ink-soft); font-size: 13px; }
+input[type=text], input[type=url], input[type=date], input[type=password], input[type=search], textarea, select {
+  width: 100%; min-width: 0; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--rule-strong);
+  background: var(--paper); min-height: 46px; font-size: 16px;
+}
+textarea { min-height: 72px; resize: vertical; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 420px) { .two { grid-template-columns: 1fr; } }
+
+.chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px; margin: 0 -2px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; border: 1px solid var(--rule-strong); background: var(--card); border-radius: 999px; padding: 8px 14px; font-weight: 600; font-size: 14px; min-height: 40px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.chip .count { font-size: 12px; font-weight: 700; background: var(--paper); border-radius: 999px; padding: 1px 7px; color: var(--ink-soft); }
+.chip.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.chip.on .count { background: rgba(255,255,255,.18); color: inherit; }
+
+.event-item { display: flex; align-items: center; gap: 14px; padding: 14px; text-align: left; width: 100%; border: 1px solid var(--rule); background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); }
+.event-item .ei-icon { font-size: 28px; width: 44px; height: 44px; border-radius: 12px; background: var(--accent-soft); display: flex; align-items: center; justify-content: center; flex: none; }
+.event-item.past { opacity: .7; }
+.ei-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ei-name { font-weight: 700; font-size: 17px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.when { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--gold-soft); color: var(--gold); white-space: nowrap; }
+.when.past { background: var(--paper); color: var(--ink-soft); }
+
+.event-head { display: flex; flex-direction: column; gap: 4px; }
+.event-head h2 { font-size: 26px; }
+
+.wish { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--shadow); }
+.wish-top { display: flex; gap: 12px; align-items: flex-start; }
+.wish-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.wish-title { font-weight: 700; font-size: 17px; overflow-wrap: anywhere; }
+.wish-title a { color: var(--ink); text-decoration: none; }
+.wish-title a:hover { text-decoration: underline; }
+.wish-meta { display: flex; gap: 6px 12px; flex-wrap: wrap; font-size: 14px; color: var(--ink-soft); }
+.wish-meta a { color: var(--accent); font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+.price { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+.wish-note { font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; background: var(--paper); border-radius: 8px; padding: 8px 10px; }
+.wish.bought { background: var(--paper); box-shadow: none; }
+.wish.bought .wish-title { color: var(--ink-soft); text-decoration: line-through; text-decoration-thickness: 2px; }
+.badge { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+.badge.bought { background: var(--pine-soft); color: var(--pine); }
+.badge.mine { background: var(--accent-soft); color: var(--accent); }
+
+.notice { border-radius: var(--radius); padding: 14px; background: var(--gold-soft); color: var(--ink); display: flex; flex-direction: column; gap: 10px; border: 1px solid transparent; }
+.notice strong { color: var(--gold); }
+.info { font-size: 14px; color: var(--ink-soft); display: flex; gap: 8px; align-items: flex-start; }
+.info svg { flex: none; margin-top: 2px; }
+.empty { text-align: center; padding: 28px 16px; color: var(--ink-soft); display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.empty .big { font-size: 36px; }
+
+.person { display: flex; flex-direction: column; gap: 8px; padding: 12px 0; border-top: 1px solid var(--rule); }
+.person:first-child { border-top: 0; padding-top: 0; }
+.person .pname { font-weight: 700; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.kinds { display: flex; flex-wrap: wrap; gap: 8px; }
+.kinds .chip { min-height: 44px; }
+.section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); margin: 6px 2px -4px; }
+
+.toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 12px 16px; border-radius: 12px; font-weight: 600; font-size: 15px; display: flex; gap: 12px; align-items: center; z-index: 20; width: max-content; max-width: min(520px, calc(100% - 32px)); box-shadow: 0 8px 28px rgba(0,0,0,.25); }
+.toast.err { background: var(--accent); color: var(--accent-ink); }
+.toast button { background: none; border: 0; color: inherit; font-weight: 800; text-decoration: underline; padding: 4px; }
+.install { font-size: 14px; }
+summary::-webkit-details-marker { display: none; }
+summary { list-style: none; }
+.install ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+@media (prefers-reduced-motion: no-preference) {
+  .toast { animation: rise .2s ease-out; }
+  @keyframes rise { from { transform: translate(-50%, 12px); opacity: 0; } }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="12" width="24" height="17" rx="3" fill="var(--accent)"/><rect x="2.5" y="8" width="27" height="6" rx="2" fill="var(--accent)"/><rect x="14" y="8" width="4" height="21" fill="var(--gold)"/><path d="M16 8c-2-5-8-6-8-2.5S13 8 16 8zm0 0c2-5 8-6 8-2.5S19 8 16 8z" fill="none" stroke="var(--gold)" stroke-width="2.2" stroke-linejoin="round"/></svg>
+      <h1>Wensenlijst</h1>
+    </div>
+    <span class="status" id="status" hidden></span>
+  </header>
+  <main id="view" class="stack" style="gap:16px"></main>
+</div>
+<div id="toast-root"></div>
+
+<script>
+(() => {
+  'use strict';
+  const KINDS = {
+    sinterklaas: { label: 'Sinterklaas', icon: '🎁', month: 12, day: 5 },
+    kerst: { label: 'Kerst', icon: '🎄', month: 12, day: 25 },
+    oudnieuw: { label: 'Oud en Nieuw', icon: '🎆', month: 12, day: 31 },
+    verjaardag: { label: 'Verjaardag', icon: '🎂' },
+    anders: { label: 'Anders', icon: '🎉' },
+  };
+  const INFO_ICON = '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="7.25" y="7" width="1.5" height="5" rx=".75" fill="currentColor"/><circle cx="8" cy="4.6" r="1" fill="currentColor"/></svg>';
+  const LINK_ICON = '<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M9 2h5v5M14 2 7 9M12 10v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const store = {
+    get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? d; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  };
+  const euro = new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' });
+  const hostOf = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
+  const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  const state = {
+    tokens: store.get('wl.tokens', []),
+    events: store.get('wl.cache', []),
+    loaded: false,
+    online: true,
+    version: 0,
+    needsCode: false,
+    view: store.get('wl.view', { name: 'home' }),
+    editing: null,        // wish id being edited, or 'new'
+    confirm: null,        // key of an inline confirmation
+    busy: false,
+    newToken: null,       // token that just arrived via a link, for the welcome line
+  };
+
+  // ---------- tokens and the address bar ----------
+  // A personal link looks like /#k=<token>. The tokens are mirrored into the address so that adding the
+  // page to the home screen on an iPhone (which starts with empty storage) still carries them along.
+  function tokensFromHash() {
+    const m = location.hash.match(/[#&]k=([A-Za-z0-9_\-.]+)/);
+    return m ? m[1].split('.').filter(t => t.length >= 10) : [];
+  }
+  function mirrorHash() {
+    const want = state.tokens.length ? '#k=' + state.tokens.join('.') : '';
+    if (location.hash !== want) history.replaceState(null, '', location.pathname + location.search + want);
+  }
+  function saveTokens() { store.set('wl.tokens', state.tokens); mirrorHash(); }
+  function addTokens(list) {
+    let added = null;
+    for (const t of list) if (!state.tokens.includes(t)) { state.tokens.push(t); added = t; }
+    if (added) saveTokens();
+    return added;
+  }
+  const linkFor = token => location.origin + location.pathname + '#k=' + token;
+
+  // ---------- server ----------
+  async function post(path, body) {
+    let res;
+    try {
+      res = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    } catch {
+      setOnline(false);
+      throw new Error('Geen verbinding. Probeer het zo opnieuw.');
+    }
+    setOnline(true);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { const e = new Error(data.error || 'Er ging iets mis'); e.status = res.status; throw e; }
+    return data;
+  }
+
+  // Every caller waits for a fetch that started after its call, so a change it just made is in the answer.
+  let fetching = null, again = false;
+  function refresh() {
+    if (fetching) { again = true; return fetching; }
+    fetching = (async () => {
+      do { again = false; await fetchState(); } while (again);
+      fetching = null;
+      render();
+    })();
+    return fetching;
+  }
+  async function fetchState() {
+    try {
+      const data = await post('/api/state', { tokens: state.tokens });
+      state.version = data.version;
+      // A token the server no longer knows (event deleted, link replaced) is dropped from this phone.
+      if (data.unknown.length) {
+        state.tokens = state.tokens.filter(t => !data.unknown.includes(t));
+        saveTokens();
+      }
+      state.events = data.events;
+      state.loaded = true;
+      store.set('wl.cache', state.events);
+    } catch {
+      // Offline: keep showing the last copy.
+    }
+  }
+
+  async function op(token, operation, okMsg, undo) {
+    if (state.busy) return null;
+    state.busy = true;
+    try {
+      const r = await post('/api/op', { token, op: operation });
+      state.busy = false;
+      await refresh();
+      if (okMsg) toast(okMsg, undo ? { label: 'Ongedaan maken', run: undo } : null);
+      return r.result || {};
+    } catch (e) {
+      state.busy = false;
+      toast(e.message, null, true);
+      if (e.status === 401 || e.status === 404 || e.status === 409) refresh();
+      return null;
+    }
+  }
+
+  function setOnline(on) {
+    if (state.online === on) return;
+    state.online = on;
+    showStatus();
+  }
+  function showStatus() {
+    const el = document.getElementById('status');
+    if (!state.tokens.length) { el.hidden = true; return; }
+    el.hidden = false;
+    el.textContent = state.online ? 'Live' : 'Geen verbinding';
+    el.className = 'status' + (state.online ? '' : ' off');
+  }
+
+  function listen() {
+    if (!('EventSource' in window)) { setInterval(refresh, 15000); return; }
+    const es = new EventSource('/api/events');
+    es.onmessage = e => {
+      setOnline(true);
+      try { if (JSON.parse(e.data).version !== state.version) refresh(); } catch {}
+    };
+    es.onerror = () => setOnline(false);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+  }
+
+  // ---------- toast ----------
+  let toastTimer = null;
+  function toast(msg, action, err) {
+    const root = document.getElementById('toast-root');
+    clearTimeout(toastTimer);
+    root.innerHTML = `<div class="toast ${err ? 'err' : ''}" role="status"><span>${esc(msg)}</span>${action ? `<button type="button" id="toast-act">${esc(action.label)}</button>` : ''}</div>`;
+    if (action) document.getElementById('toast-act').onclick = () => { root.innerHTML = ''; action.run(); };
+    toastTimer = setTimeout(() => { root.innerHTML = ''; }, action ? 6000 : 3500);
+  }
+
+  // ---------- navigation ----------
+  function go(view) {
+    state.view = view; state.editing = null; state.confirm = null;
+    store.set('wl.view', view);
+    render();
+    window.scrollTo(0, 0);
+  }
+  const currentEvent = () => state.view.name === 'event' ? state.events.find(e => e.token === state.view.token) : null;
+
+  // ---------- dates ----------
+  function todayIso() { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); }
+  function daysUntil(iso) {
+    const [y, m, d] = iso.split('-').map(Number);
+    const t = new Date(); const a = Date.UTC(t.getFullYear(), t.getMonth(), t.getDate());
+    return Math.round((Date.UTC(y, m - 1, d) - a) / 86400000);
+  }
+  function whenLabel(iso) {
+    const n = daysUntil(iso);
+    if (n > 1) return `Nog ${n} dagen`;
+    if (n === 1) return 'Morgen';
+    if (n === 0) return 'Vandaag';
+    return 'Voorbij';
+  }
+  const longDate = iso => new Date(iso + 'T12:00:00').toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  function nextDateFor(kind) {
+    const k = KINDS[kind];
+    const t = new Date();
+    if (!k || !k.month) { const d = new Date(t.getTime() + 14 * 86400000); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); }
+    let y = t.getFullYear();
+    const pad = n => String(n).padStart(2, '0');
+    let iso = `${y}-${pad(k.month)}-${pad(k.day)}`;
+    if (daysUntil(iso) < 0) iso = `${y + 1}-${pad(k.month)}-${pad(k.day)}`;
+    return iso;
+  }
+  const defaultName = (kind, date) => kind === 'verjaardag' || kind === 'anders' ? '' : `${KINDS[kind].label} ${date.slice(0, 4)}`;
+
+  // ---------- render ----------
+  function render() {
+    showStatus();
+    const view = document.getElementById('view');
+    const v = state.view;
+    if (v.name === 'create') { view.innerHTML = createView(); bindCreate(); return; }
+    const ev = currentEvent();
+    if (v.name === 'event' && ev) { view.innerHTML = eventView(ev); bindEvent(ev); return; }
+    if (v.name === 'event' && !ev && state.loaded) { state.view = { name: 'home' }; store.set('wl.view', state.view); }
+    view.innerHTML = homeView();
+    bindHome();
+  }
+
+  function installHint() {
+    if (isStandalone() || store.get('wl.installSeen', false)) return '';
+    const steps = isIos
+      ? '<li>Tik onderin Safari op <strong>Deel</strong> (het vierkantje met de pijl).</li><li>Kies <strong>Zet op beginscherm</strong>.</li>'
+      : '<li>Tik op het menu van je browser (de drie puntjes).</li><li>Kies <strong>App installeren</strong> of <strong>Toevoegen aan startscherm</strong>.</li>';
+    return `<section class="card install">
+      <h3>Zet de wensenlijst op je beginscherm</h3>
+      <ol>${steps}</ol>
+      <p class="muted small">Doe dit vanaf deze pagina, dan onthoudt de app wie je bent. Stuur het adres van deze pagina niet door: het bevat jouw persoonlijke link.</p>
+      <div class="row"><span class="spacer"></span><button class="btn ghost sm" id="install-ok" type="button">Begrepen</button></div>
+    </section>`;
+  }
+
+  function homeView() {
+    const evs = [...state.events].sort((a, b) => a.date.localeCompare(b.date));
+    const upcoming = evs.filter(e => daysUntil(e.date) >= 0);
+    const past = evs.filter(e => daysUntil(e.date) < 0).reverse();
+    const item = e => {
+      const k = KINDS[e.kind] || KINDS.anders;
+      const mine = e.wishes.filter(w => w.ownerId === e.me.id).length;
+      const pastCls = daysUntil(e.date) < 0 ? 'past' : '';
+      // The same event twice on one phone (someone tested another person's link): say who is who.
+      const twice = state.events.filter(x => x.id === e.id).length > 1;
+      return `<button class="event-item ${pastCls}" type="button" data-open="${esc(e.token)}">
+        <span class="ei-icon" aria-hidden="true">${k.icon}</span>
+        <span class="ei-main">
+          <span class="ei-name">${esc(e.name)}${twice ? ` <span class="small muted">als ${esc(e.me.name)}</span>` : ''}</span>
+          <span class="small muted">${esc(longDate(e.date))}</span>
+          <span class="tiny muted">${e.participants.length} deelnemers · jij hebt ${mine} ${mine === 1 ? 'wens' : 'wensen'}</span>
+        </span>
+        <span class="when ${pastCls}">${whenLabel(e.date)}</span>
+      </button>`;
+    };
+    const paste = `<section class="card">
+        <h3>Heb je een link gekregen?</h3>
+        <p class="small muted">Open de persoonlijke link die de organisator je stuurde. Lukt dat niet, plak hem dan hier.</p>
+        <form class="row" id="paste-form" style="flex-wrap:nowrap">
+          <input type="url" id="paste" placeholder="Plak je link" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Persoonlijke link">
+          <button class="btn" type="submit">Openen</button>
+        </form>
+      </section>`;
+    if (!state.tokens.length) {
+      return `
+        <section class="card">
+          <h2>Samen wensen bijhouden</h2>
+          <p class="muted">Voor Sinterklaas, Kerst of Oud en Nieuw. Iedereen zet zijn wensen op een lijstje, de anderen vinken af wat ze kopen. Jij ziet nooit wat er van jouw lijstje al gekocht is.</p>
+        </section>
+        ${paste}
+        <section class="card">
+          <h3>Zelf iets organiseren?</h3>
+          <p class="small muted">Maak een evenement aan, zet de deelnemers erin en stuur iedereen zijn eigen link.</p>
+          <button class="btn primary" type="button" id="new-event">Nieuw evenement</button>
+        </section>`;
+    }
+    return `
+      ${state.newToken ? welcomeLine() : ''}
+      ${installHint()}
+      ${!state.loaded && !state.events.length ? '<p class="muted">Laden…</p>' : ''}
+      ${upcoming.length ? `<div class="section-title">Komt eraan</div>${upcoming.map(item).join('')}` : ''}
+      ${past.length ? `<div class="section-title">Geweest</div>${past.map(item).join('')}` : ''}
+      <button class="btn primary block" type="button" id="new-event">Nieuw evenement</button>
+      <details class="card" style="gap:0">
+        <summary class="small" style="cursor:pointer;font-weight:600">Nog een link openen</summary>
+        <form class="row" id="paste-form" style="flex-wrap:nowrap;margin-top:12px">
+          <input type="url" id="paste" placeholder="Plak een link" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Persoonlijke link">
+          <button class="btn" type="submit">Openen</button>
+        </form>
+      </details>`;
+  }
+  function welcomeLine() {
+    const e = state.events.find(x => x.token === state.newToken);
+    if (!e) return '';
+    return `<section class="notice" style="background:var(--pine-soft)"><strong style="color:var(--pine)">Welkom ${esc(e.me.name)}!</strong><span class="small">Je doet mee aan ${esc(e.name)}. Tik erop om je wensen toe te voegen.</span></section>`;
+  }
+
+  function bindHome() {
+    document.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { state.newToken = null; go({ name: 'event', token: b.dataset.open, tab: 'mine' }); });
+    const ne = document.getElementById('new-event');
+    if (ne) ne.onclick = () => go({ name: 'create' });
+    const io = document.getElementById('install-ok');
+    if (io) io.onclick = () => { store.set('wl.installSeen', true); render(); };
+    const pf = document.getElementById('paste-form');
+    if (pf) pf.onsubmit = async ev => {
+      ev.preventDefault();
+      const val = document.getElementById('paste').value.trim();
+      const m = val.match(/k=([A-Za-z0-9_\-.]+)/);
+      const list = m ? m[1].split('.') : (/^[A-Za-z0-9_-]{16,}$/.test(val) ? [val] : []);
+      if (!list.length) return toast('Dit lijkt geen link van de wensenlijst', null, true);
+      const added = addTokens(list);
+      await refresh();
+      if (added && state.tokens.includes(added)) { state.newToken = added; render(); toast('Gelukt'); }
+      else if (!added) toast('Deze link staat al op dit toestel');
+      else toast('Deze link werkt niet meer. Vraag de organisator om een nieuwe.', null, true);
+    };
+  }
+
+  // ---------- create ----------
+  function createView() {
+    const d = state.createDraft || (state.createDraft = { kind: 'sinterklaas', date: nextDateFor('sinterklaas'), name: '', me: store.get('wl.myName', ''), people: ['', ''], code: '' });
+    if (!d.name) d.name = defaultName(d.kind, d.date);
+    return `
+      <div class="row"><button class="btn ghost" id="back" type="button">‹ Terug</button></div>
+      <form class="card" id="create-form" autocomplete="off">
+        <h2>Nieuw evenement</h2>
+        <div class="field" style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:14px;font-weight:600">Wat vieren jullie?</span>
+          <div class="kinds" role="radiogroup" aria-label="Soort evenement">
+            ${Object.entries(KINDS).map(([k, v]) => `<button type="button" class="chip ${d.kind === k ? 'on' : ''}" role="radio" aria-checked="${d.kind === k}" data-kind="${k}"><span aria-hidden="true">${v.icon}</span>${v.label}</button>`).join('')}
+          </div>
+        </div>
+        <div class="two">
+          <label class="field">Naam
+            <input type="text" id="c-name" maxlength="60" value="${esc(d.name)}" placeholder="Bijvoorbeeld Kerst bij oma" required>
+          </label>
+          <label class="field">Datum
+            <input type="date" id="c-date" value="${esc(d.date)}" required>
+          </label>
+        </div>
+        <label class="field">Jouw naam
+          <input type="text" id="c-me" maxlength="40" value="${esc(d.me)}" placeholder="Zoals de anderen je kennen" required>
+        </label>
+        <div class="stack">
+          <span style="font-size:14px;font-weight:600">Wie doen er nog meer mee?</span>
+          <span class="small muted">Iedereen krijgt straks een eigen link die je via WhatsApp kunt sturen. Je kunt later nog mensen toevoegen.</span>
+          <div class="stack" id="people">
+            ${d.people.map((n, i) => personInput(n, i)).join('')}
+          </div>
+          <div><button class="btn ghost" type="button" id="add-person">+ Deelnemer</button></div>
+        </div>
+        ${state.needsCode ? `<label class="field">Aanmaakcode<span class="hint">Alleen nodig om een evenement aan te maken.</span>
+          <input type="password" id="c-code" value="${esc(d.code)}" autocomplete="off" autocapitalize="off" required>
+        </label>` : ''}
+        <button class="btn primary block" type="submit" id="c-submit">Evenement aanmaken</button>
+      </form>`;
+  }
+  const personInput = (n, i) => `<div class="row" style="flex-wrap:nowrap"><input type="text" maxlength="40" data-person="${i}" value="${esc(n)}" placeholder="Naam deelnemer ${i + 1}" aria-label="Naam deelnemer ${i + 1}"><button class="btn ghost" type="button" data-rm="${i}" aria-label="Deelnemer weghalen">✕</button></div>`;
+
+  function bindCreate() {
+    const d = state.createDraft;
+    const sync = () => {
+      d.name = document.getElementById('c-name').value;
+      d.date = document.getElementById('c-date').value;
+      d.me = document.getElementById('c-me').value;
+      d.people = [...document.querySelectorAll('[data-person]')].map(i => i.value);
+      const c = document.getElementById('c-code'); if (c) d.code = c.value;
+    };
+    document.getElementById('back').onclick = () => { state.createDraft = null; go({ name: 'home' }); };
+    document.querySelectorAll('[data-kind]').forEach(b => b.onclick = () => {
+      sync();
+      const wasDefault = d.name === defaultName(d.kind, d.date) || !d.name;
+      d.kind = b.dataset.kind;
+      d.date = nextDateFor(d.kind);
+      if (wasDefault) d.name = defaultName(d.kind, d.date);
+      render();
+    });
+    document.getElementById('add-person').onclick = () => {
+      sync(); d.people.push(''); render();
+      const inputs = document.querySelectorAll('[data-person]'); inputs[inputs.length - 1].focus();
+    };
+    document.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { sync(); d.people.splice(+b.dataset.rm, 1); if (!d.people.length) d.people.push(''); render(); });
+    document.getElementById('create-form').onsubmit = async e => {
+      e.preventDefault(); sync();
+      const btn = document.getElementById('c-submit'); btn.disabled = true;
+      try {
+        const r = await post('/api/create', { name: d.name, kind: d.kind, date: d.date, organizerName: d.me, participants: d.people, code: d.code });
+        store.set('wl.myName', d.me.trim());
+        addTokens([r.token]);
+        state.createDraft = null;
+        await refresh();
+        const ev = state.events.find(x => x.token === r.token);
+        if (ev) go({ name: 'event', token: ev.token, tab: 'manage' });
+        toast('Evenement aangemaakt. Stuur nu iedereen zijn link.');
+      } catch (err) {
+        btn.disabled = false;
+        toast(err.message, null, true);
+      }
+    };
+  }
+
+  // ---------- event ----------
+  function eventView(e) {
+    const k = KINDS[e.kind] || KINDS.anders;
+    const others = e.participants.filter(p => p.id !== e.me.id);
+    let tab = state.view.tab || 'mine';
+    if (tab.startsWith('p:') && !others.some(p => 'p:' + p.id === tab)) tab = 'mine';
+    if (tab === 'manage' && !e.me.isOrganizer) tab = 'mine';
+    const openCount = pid => e.wishes.filter(w => w.ownerId === pid && !w.purchase && !w.deleted).length;
+    const boughtByMe = e.wishes.filter(w => w.purchase && w.purchase.byId === e.me.id);
+    const deletedNotices = e.wishes.filter(w => w.deleted);
+    const tabs = [
+      `<button class="chip ${tab === 'mine' ? 'on' : ''}" data-tab="mine" type="button">Mijn lijstje <span class="count">${e.wishes.filter(w => w.ownerId === e.me.id).length}</span></button>`,
+      ...others.map(p => `<button class="chip ${tab === 'p:' + p.id ? 'on' : ''}" data-tab="p:${esc(p.id)}" type="button">${esc(p.name)} <span class="count" title="nog te kopen">${openCount(p.id)}</span></button>`),
+      `<button class="chip ${tab === 'bought' ? 'on' : ''}" data-tab="bought" type="button">Mijn aankopen <span class="count">${boughtByMe.filter(w => !w.deleted).length}</span></button>`,
+      e.me.isOrganizer ? `<button class="chip ${tab === 'manage' ? 'on' : ''}" data-tab="manage" type="button">Beheer</button>` : '',
+    ].join('');
+    let body;
+    if (tab === 'mine') body = mineTab(e);
+    else if (tab === 'bought') body = boughtTab(e, boughtByMe.filter(w => !w.deleted));
+    else if (tab === 'manage') body = manageTab(e);
+    else body = personTab(e, others.find(p => 'p:' + p.id === tab));
+    return `
+      <div class="row"><button class="btn ghost" id="back" type="button">‹ Alle evenementen</button></div>
+      <div class="event-head">
+        <h2><span aria-hidden="true">${k.icon}</span> ${esc(e.name)}</h2>
+        <div class="row small muted"><span>${esc(longDate(e.date))}</span><span class="when ${daysUntil(e.date) < 0 ? 'past' : ''}">${whenLabel(e.date)}</span></div>
+        <p class="small muted">Je bent hier als <strong style="color:var(--ink)">${esc(e.me.name)}</strong>${e.me.isOrganizer ? ', de organisator' : ''}.</p>
+      </div>
+      ${deletedNotices.map(w => `<section class="notice">
+        <span><strong>Van het lijstje gehaald.</strong> ${esc(nameOf(e, w.ownerId))} heeft “${esc(w.title)}” verwijderd, maar jij had het al gekocht.</span>
+        <div class="row"><button class="btn sm" type="button" data-dismiss="${esc(w.id)}">Ik geef het toch</button><button class="btn sm ghost" type="button" data-unbuy="${esc(w.id)}">Ik breng het terug</button></div>
+      </section>`).join('')}
+      <nav class="chips" aria-label="Lijstjes">${tabs}</nav>
+      ${body}`;
+  }
+  const nameOf = (e, id) => (e.participants.find(p => p.id === id) || {}).name || 'Iemand';
+
+  function wishCard(w, opts) {
+    const host = w.url ? hostOf(w.url) : '';
+    const title = w.url ? `<a href="${esc(w.url)}" target="_blank" rel="noopener noreferrer">${esc(w.title)}</a>` : esc(w.title);
+    const meta = [
+      w.price != null ? `<span class="price">${euro.format(w.price)}</span>` : '',
+      w.url ? `<a href="${esc(w.url)}" target="_blank" rel="noopener noreferrer">${LINK_ICON}${esc(host || 'Bekijk')}</a>` : '',
+    ].filter(Boolean).join('');
+    return `<article class="wish ${opts.bought ? 'bought' : ''}">
+      <div class="wish-top">
+        <div class="wish-main">
+          <div class="wish-title">${title}</div>
+          ${meta ? `<div class="wish-meta">${meta}</div>` : ''}
+        </div>
+        ${opts.badge || ''}
+      </div>
+      ${w.note ? `<div class="wish-note">${esc(w.note)}</div>` : ''}
+      ${opts.actions ? `<div class="row">${opts.actions}</div>` : ''}
+    </article>`;
+  }
+
+  function wishForm(w) {
+    const v = w || { title: '', url: '', price: null, note: '' };
+    const price = v.price != null ? String(v.price).replace('.', ',') : '';
+    return `<form class="card" id="wish-form" autocomplete="off">
+      <h3>${w ? 'Wens aanpassen' : 'Nieuwe wens'}</h3>
+      <label class="field">Link naar het cadeau<span class="hint">Plak de link uit de webwinkel. Mag ook leeg blijven.</span>
+        <input type="url" id="w-url" inputmode="url" value="${esc(v.url)}" placeholder="https://" autocapitalize="off" spellcheck="false">
+      </label>
+      <label class="field">Wat wens je?
+        <input type="text" id="w-title" maxlength="120" value="${esc(v.title)}" placeholder="Bijvoorbeeld een boek, een trui of een spel">
+      </label>
+      <div class="two">
+        <label class="field">Prijs<span class="hint">Ongeveer, mag leeg</span>
+          <input type="text" id="w-price" inputmode="decimal" value="${esc(price)}" placeholder="€ 0,00">
+        </label>
+        <div></div>
+      </div>
+      <label class="field">Opmerking<span class="hint">Maat, kleur of iets anders dat de koper moet weten</span>
+        <textarea id="w-note" maxlength="300">${esc(v.note)}</textarea>
+      </label>
+      <div class="row"><button class="btn ghost" type="button" id="w-cancel">Annuleer</button><span class="spacer"></span><button class="btn primary" type="submit">${w ? 'Opslaan' : 'Toevoegen'}</button></div>
+    </form>`;
+  }
+
+  function mineTab(e) {
+    const mine = e.wishes.filter(w => w.ownerId === e.me.id).sort((a, b) => a.createdAt - b.createdAt);
+    const list = mine.map(w => {
+      if (state.editing === w.id) return wishForm(w);
+      const confirming = state.confirm === 'del:' + w.id;
+      const actions = confirming
+        ? `<span class="small">Verwijderen?</span><span class="spacer"></span><button class="btn sm ghost" type="button" data-cancel>Nee</button><button class="btn sm danger" type="button" data-del-yes="${esc(w.id)}">Ja, verwijder</button>`
+        : `<span class="spacer"></span><button class="btn sm ghost" type="button" data-edit="${esc(w.id)}">Wijzig</button><button class="btn sm ghost danger" type="button" data-del="${esc(w.id)}">Verwijder</button>`;
+      return wishCard(w, { actions });
+    }).join('');
+    return `
+      <p class="info">${INFO_ICON}<span>Je ziet hier bewust niet of iemand iets van jouw lijstje al gekocht heeft. De anderen zien dat wel.</span></p>
+      ${state.editing === 'new' ? wishForm(null) : `<button class="btn primary block" type="button" id="add-wish">+ Wens toevoegen</button>`}
+      ${list || (state.editing === 'new' ? '' : `<div class="empty"><span class="big" aria-hidden="true">📝</span><span>Je lijstje is nog leeg.</span><span class="small">Voeg je eerste wens toe, met een link naar de winkel.</span></div>`)}`;
+  }
+
+  function personTab(e, p) {
+    const ws = e.wishes.filter(w => w.ownerId === p.id && !w.deleted);
+    const open = ws.filter(w => !w.purchase).sort((a, b) => a.createdAt - b.createdAt);
+    const bought = ws.filter(w => w.purchase).sort((a, b) => a.purchase.at - b.purchase.at);
+    const card = w => {
+      if (!w.purchase) return wishCard(w, { actions: `<span class="spacer"></span><button class="btn sm pine" type="button" data-buy="${esc(w.id)}">Ik koop dit</button>` });
+      const mine = w.purchase.byId === e.me.id;
+      return wishCard(w, {
+        bought: true,
+        badge: mine ? '<span class="badge mine">Jij koopt dit</span>' : `<span class="badge bought">Gekocht door ${esc(w.purchase.byName)}</span>`,
+        actions: mine ? `<span class="spacer"></span><button class="btn sm ghost" type="button" data-unbuy="${esc(w.id)}">Toch niet</button>` : '',
+      });
+    };
+    if (!ws.length) return `<div class="empty"><span class="big" aria-hidden="true">🕯️</span><span>${esc(p.name)} heeft nog geen wensen.</span></div>`;
+    return `
+      ${open.length ? open.map(card).join('') : `<div class="empty"><span class="big" aria-hidden="true">✅</span><span>Alles van ${esc(p.name)} is al gekocht.</span></div>`}
+      ${bought.length ? `<div class="section-title">Al gekocht, niet meer kopen</div>${bought.map(card).join('')}` : ''}`;
+  }
+
+  function boughtTab(e, list) {
+    if (!list.length) return `<div class="empty"><span class="big" aria-hidden="true">🛍️</span><span>Je hebt nog niets afgevinkt.</span><span class="small">Kies een naam hierboven en tik bij een wens op Ik koop dit.</span></div>`;
+    const by = {};
+    list.forEach(w => { (by[w.ownerId] = by[w.ownerId] || []).push(w); });
+    const total = list.reduce((a, w) => a + (w.price || 0), 0);
+    return `${Object.entries(by).map(([pid, ws]) => `
+      <div class="section-title">Voor ${esc(nameOf(e, pid))}</div>
+      ${ws.map(w => wishCard(w, { actions: `<span class="spacer"></span><button class="btn sm ghost" type="button" data-unbuy="${esc(w.id)}">Toch niet</button>` })).join('')}`).join('')}
+      ${total ? `<p class="small muted" style="text-align:right">Totaal van de bekende prijzen: <strong class="price">${euro.format(total)}</strong></p>` : ''}`;
+  }
+
+  function manageTab(e) {
+    const people = e.participants.map(p => {
+      const isMe = p.id === e.me.id;
+      const c = state.confirm;
+      let extra = '';
+      if (c === 'rm:' + p.id) extra = `<div class="row" style="width:100%"><span class="small">${esc(p.name)} en de wensen van ${esc(p.name)} verwijderen?</span><span class="spacer"></span><button class="btn sm ghost" type="button" data-cancel>Nee</button><button class="btn sm danger" type="button" data-rm-yes="${esc(p.id)}">Ja</button></div>`;
+      else if (c === 'nl:' + p.id) extra = `<div class="row" style="width:100%"><span class="small">De oude link van ${esc(p.name)} stopt dan met werken.</span><span class="spacer"></span><button class="btn sm ghost" type="button" data-cancel>Nee</button><button class="btn sm" type="button" data-nl-yes="${esc(p.id)}">Nieuwe link</button></div>`;
+      else if (c === 'rn:' + p.id) extra = `<form class="row" style="width:100%;flex-wrap:nowrap" data-rn-form="${esc(p.id)}"><input type="text" maxlength="40" value="${esc(p.name)}" aria-label="Nieuwe naam"><button class="btn sm" type="submit">Opslaan</button></form>`;
+      const menuOpen = c === 'menu:' + p.id;
+      return `<div class="person">
+        <div class="row" style="flex-wrap:nowrap">
+          <span class="pname">${esc(p.name)}${isMe ? ' <span class="muted small">(jij)</span>' : ''}</span>
+          ${isMe ? `<button class="btn sm" type="button" data-copy-own>Kopieer mijn link</button>` : `<button class="btn sm pine" type="button" data-share="${esc(p.id)}">Stuur link</button>
+          <button class="btn sm" type="button" data-copy="${esc(p.id)}">Kopieer</button>`}
+          <button class="btn sm ghost" type="button" data-menu="${esc(p.id)}" aria-expanded="${menuOpen}" aria-label="Meer voor ${esc(p.name)}">•••</button>
+        </div>
+        ${menuOpen ? `<div class="row">
+          <button class="btn sm" type="button" data-rn="${esc(p.id)}">Naam wijzigen</button>
+          ${isMe ? '' : `<button class="btn sm" type="button" data-nl="${esc(p.id)}">Nieuwe link</button>
+          <button class="btn sm danger" type="button" data-rm="${esc(p.id)}">Verwijderen</button>`}
+        </div>` : ''}
+        ${extra}
+      </div>`;
+    }).join('');
+    return `
+      <section class="card">
+        <h3>Deelnemers</h3>
+        <p class="small muted">Stuur iedereen zijn eigen link. Met Kopieer mijn link open je dit evenement ook op je computer of tablet. Wie de link opent, doet mee als die persoon. Een link is persoonlijk: met andermans link zie je wat er voor die ander gekocht is.</p>
+        <div>${people}</div>
+        <form class="row" id="add-p-form" style="flex-wrap:nowrap">
+          <input type="text" id="add-p" maxlength="40" placeholder="Naam nieuwe deelnemer" aria-label="Naam nieuwe deelnemer">
+          <button class="btn" type="submit">Toevoegen</button>
+        </form>
+      </section>
+      <form class="card" id="edit-ev">
+        <h3>Evenement</h3>
+        <div class="two">
+          <label class="field">Naam<input type="text" id="e-name" maxlength="60" value="${esc(e.name)}" required></label>
+          <label class="field">Datum<input type="date" id="e-date" value="${esc(e.date)}" required></label>
+        </div>
+        <label class="field">Soort
+          <select id="e-kind">${Object.entries(KINDS).map(([k, v]) => `<option value="${k}" ${e.kind === k ? 'selected' : ''}>${v.label}</option>`).join('')}</select>
+        </label>
+        <div class="row"><span class="spacer"></span><button class="btn" type="submit">Opslaan</button></div>
+      </form>
+      <section class="card">
+        <h3>Evenement verwijderen</h3>
+        <p class="small muted">Alle lijstjes van dit evenement verdwijnen, voor iedereen.</p>
+        ${state.confirm === 'del-event'
+          ? `<div class="row"><span class="small">Weet je het zeker?</span><span class="spacer"></span><button class="btn sm ghost" type="button" data-cancel>Nee</button><button class="btn sm danger" type="button" id="del-ev-yes">Ja, verwijder alles</button></div>`
+          : `<div><button class="btn danger" type="button" id="del-ev">Verwijder evenement</button></div>`}
+      </section>`;
+  }
+
+  function shareText(e, p) {
+    return `Hoi ${p.name}! Dit is jouw persoonlijke link voor de wensenlijst van ${e.name}: ${linkFor(p.token)}\n\nZet je cadeauwensen erop en kijk wat de anderen graag willen. Stuur de link niet door, hij is alleen voor jou.`;
+  }
+  async function copy(text) {
+    try { await navigator.clipboard.writeText(text); return true; } catch {}
+    const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand('copy'); } catch {}
+    ta.remove(); return ok;
+  }
+
+  function bindEvent(e) {
+    const T = e.token;
+    const $ = id => document.getElementById(id);
+    const all = (sel, fn) => document.querySelectorAll(sel).forEach(el => fn(el));
+    $('back').onclick = () => go({ name: 'home' });
+    all('[data-tab]', b => b.onclick = () => go({ name: 'event', token: e.token, tab: b.dataset.tab }));
+    all('[data-cancel]', b => b.onclick = () => { state.confirm = null; render(); });
+
+    // own list
+    const add = $('add-wish');
+    if (add) add.onclick = () => { state.editing = 'new'; render(); $('w-url').focus(); };
+    const wf = $('wish-form');
+    if (wf) {
+      $('w-cancel').onclick = () => { state.editing = null; render(); };
+      wf.onsubmit = async ev => {
+        ev.preventDefault();
+        const data = { title: $('w-title').value, url: $('w-url').value, price: $('w-price').value, note: $('w-note').value };
+        const editing = state.editing;
+        const r = editing === 'new'
+          ? await op(T, { type: 'addWish', ...data }, 'Wens toegevoegd')
+          : await op(T, { type: 'editWish', id: editing, ...data }, 'Opgeslagen');
+        if (r) { state.editing = null; render(); }
+      };
+    }
+    all('[data-edit]', b => b.onclick = () => { state.editing = b.dataset.edit; state.confirm = null; render(); });
+    all('[data-del]', b => b.onclick = () => { state.confirm = 'del:' + b.dataset.del; render(); });
+    all('[data-del-yes]', b => b.onclick = async () => { state.confirm = null; await op(T, { type: 'deleteWish', id: b.dataset.delYes }, 'Wens verwijderd'); });
+
+    // others' lists
+    all('[data-buy]', b => b.onclick = async () => {
+      const id = b.dataset.buy;
+      await op(T, { type: 'buy', id }, 'Afgevinkt, de anderen zien dat jij dit koopt', () => op(T, { type: 'unbuy', id }, 'Teruggezet'));
+    });
+    all('[data-unbuy]', b => b.onclick = async () => { await op(T, { type: 'unbuy', id: b.dataset.unbuy }, 'Teruggezet, iemand anders kan het nu kopen'); });
+    all('[data-dismiss]', b => b.onclick = async () => { await op(T, { type: 'dismiss', id: b.dataset.dismiss }, 'Melding weggehaald'); });
+
+    // manage
+    const find = id => e.participants.find(p => p.id === id);
+    all('[data-share]', b => b.onclick = async () => {
+      const p = find(b.dataset.share);
+      const text = shareText(e, p);
+      if (navigator.share) {
+        try { await navigator.share({ text }); return; } catch (err) { if (err && err.name === 'AbortError') return; }
+      }
+      window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');
+    });
+    all('[data-copy]', b => b.onclick = async () => {
+      const p = find(b.dataset.copy);
+      toast(await copy(shareText(e, p)) ? `Bericht voor ${p.name} gekopieerd` : 'Kopiëren lukte niet', null, false);
+    });
+    all('[data-menu]', b => b.onclick = () => { state.confirm = state.confirm === 'menu:' + b.dataset.menu ? null : 'menu:' + b.dataset.menu; render(); });
+    all('[data-copy-own]', b => b.onclick = async () => {
+      toast(await copy(linkFor(e.token)) ? 'Je link is gekopieerd. Open hem op je andere toestel.' : 'Kopiëren lukte niet');
+    });
+    all('[data-rn]', b => b.onclick = () => { state.confirm = 'rn:' + b.dataset.rn; render(); const i = document.querySelector(`[data-rn-form] input`); if (i) i.focus(); });
+    all('[data-rn-form]', f => f.onsubmit = async ev => { ev.preventDefault(); if (await op(T, { type: 'renameParticipant', id: f.dataset.rnForm, name: f.querySelector('input').value }, 'Naam gewijzigd')) { state.confirm = null; render(); } });
+    all('[data-nl]', b => b.onclick = () => { state.confirm = 'nl:' + b.dataset.nl; render(); });
+    all('[data-nl-yes]', b => b.onclick = async () => { state.confirm = null; await op(T, { type: 'newLink', id: b.dataset.nlYes }, 'Nieuwe link gemaakt. Stuur die nu op.'); });
+    all('[data-rm]', b => b.onclick = () => { state.confirm = 'rm:' + b.dataset.rm; render(); });
+    all('[data-rm-yes]', b => b.onclick = async () => { state.confirm = null; await op(T, { type: 'removeParticipant', id: b.dataset.rmYes }, 'Deelnemer verwijderd'); });
+    const apf = $('add-p-form');
+    if (apf) apf.onsubmit = async ev => {
+      ev.preventDefault();
+      const name = $('add-p').value;
+      if (await op(T, { type: 'addParticipant', name }, `${name.trim()} doet nu mee. Stuur de link.`)) $('add-p').value = '';
+    };
+    const ef = $('edit-ev');
+    if (ef) ef.onsubmit = async ev => { ev.preventDefault(); await op(T, { type: 'editEvent', name: $('e-name').value, date: $('e-date').value, kind: $('e-kind').value }, 'Opgeslagen'); };
+    const de = $('del-ev');
+    if (de) de.onclick = () => { state.confirm = 'del-event'; render(); };
+    const dy = $('del-ev-yes');
+    if (dy) dy.onclick = async () => {
+      state.confirm = null;
+      if (await op(T, { type: 'deleteEvent' }, 'Evenement verwijderd')) go({ name: 'home' });
+    };
+  }
+
+  // ---------- boot ----------
+  async function boot() {
+    const fromLink = tokensFromHash();
+    const added = addTokens(fromLink);
+    if (fromLink.length === 1 && added) { state.newToken = added; state.view = { name: 'home' }; }
+    mirrorHash();
+    render();
+    fetch('/api/config').then(r => r.json()).then(c => { state.needsCode = !!c.needsCode; if (state.view.name === 'create') render(); }).catch(() => {});
+    await refresh();
+    // Opened a fresh personal link: go straight into that event.
+    if (state.newToken) {
+      const ev = state.events.find(x => x.token === state.newToken);
+      if (ev && state.events.length === 1) { state.newToken = null; go({ name: 'event', token: ev.token, tab: 'mine' }); }
+    }
+    listen();
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+  window.addEventListener('hashchange', async () => {
+    const added = addTokens(tokensFromHash());
+    if (added) { state.newToken = added; await refresh(); go({ name: 'home' }); }
+  });
+  boot();
+})();
+</script>
+</body>
+</html>

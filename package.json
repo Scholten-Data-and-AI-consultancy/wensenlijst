@@ -1,0 +1,12 @@
+{
+  "name": "wensenlijst",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cadeauwensen voor Sinterklaas, Kerst en Oud en Nieuw als installeerbare webapp, gesynchroniseerd tussen telefoons",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": { "node": ">=20" }
+}
