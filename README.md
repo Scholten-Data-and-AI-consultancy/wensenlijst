@@ -9,6 +9,7 @@ Cadeauwensen bijhouden voor Sinterklaas, Kerst, Oud en Nieuw of een verjaardag. 
 - **Wat er van jouw eigen lijstje gekocht is, zie je nooit.** De server laat dat weg uit alles wat naar jouw telefoon gaat, dus ook spieken via de ontwikkelaarstools lukt niet
 - Haalt iemand een wens weg die jij al gekocht had, dan krijg jij daar een melding van
 - Onder **Mijn aankopen** zie je per persoon wat jij koopt, met het totaal
+- Link kwijt als organisator? Met **Organisator? Haal je link terug** op het startscherm krijg je hem terug met je naam en de aanmaakcode. Zonder ingestelde aanmaakcode staat dit uit, anders kon iedereen die je naam kent je evenement overnemen
 - De organisator kan deelnemers toevoegen, hernoemen of verwijderen, een link vervangen die bij de verkeerde terechtkwam en het evenement aanpassen of verwijderen
 
 ## Draaien

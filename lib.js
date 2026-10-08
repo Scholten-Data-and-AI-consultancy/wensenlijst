@@ -242,6 +242,19 @@ function applyOp(db, event, me, op) {
   }
 }
 
+// The organizer tokens of every event this name organizes. Used to win back the organizer link on a new
+// device; the caller has already checked the creation code, which is what makes this safe.
+function organizerTokens(db, name) {
+  const want = cleanText(name, LIMITS.name).toLowerCase();
+  if (!want) return [];
+  const out = [];
+  for (const e of db.events) {
+    const org = e.participants.find(p => p.id === e.organizerId);
+    if (org && org.name.toLowerCase() === want) out.push(org.token);
+  }
+  return out;
+}
+
 function hostOf(url) {
   try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return ''; }
 }
@@ -251,4 +264,4 @@ function migrate(data) {
   return { version: Number(data.version) || 0, events: data.events };
 }
 
-module.exports = { KINDS, LIMITS, OpError, emptyDb, resolve, createEvent, viewEvent, applyOp, migrate, cleanPrice, cleanUrl };
+module.exports = { KINDS, LIMITS, OpError, emptyDb, resolve, createEvent, viewEvent, applyOp, organizerTokens, migrate, cleanPrice, cleanUrl };

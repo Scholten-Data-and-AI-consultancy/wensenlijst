@@ -5,7 +5,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { OpError, emptyDb, resolve, createEvent, viewEvent, applyOp, migrate } = require('./lib.js');
+const { OpError, emptyDb, resolve, createEvent, viewEvent, applyOp, organizerTokens, migrate } = require('./lib.js');
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
@@ -153,6 +153,20 @@ async function handle(req, res) {
       if (e instanceof OpError) return json(res, e.status, { error: e.message });
       throw e;
     }
+  }
+
+  // Lost the organizer link? The creation code plus the organizer's name gives it back.
+  // Off without a code: then a name alone would be enough to take over an event.
+  if (req.method === 'POST' && url.pathname === '/api/recover') {
+    if (!AANMAAKCODE) return json(res, 403, { error: 'Terughalen kan alleen als er een aanmaakcode is ingesteld' });
+    const ip = clientIp(req);
+    if (tooManyAttempts(ip)) return json(res, 429, { error: 'Te veel pogingen, probeer het over een kwartier opnieuw' });
+    const body = await readJson(req);
+    if (!body) return json(res, 400, { error: 'Ongeldig verzoek' });
+    if (!codeOk(body.code)) { noteFailure(ip); return json(res, 401, { error: 'Deze aanmaakcode klopt niet' }); }
+    const tokens = organizerTokens(db, body.name);
+    if (!tokens.length) { noteFailure(ip); return json(res, 404, { error: 'Geen evenementen gevonden die je met deze naam organiseert' }); }
+    return json(res, 200, { tokens });
   }
 
   if (req.method === 'POST' && url.pathname === '/api/op') {

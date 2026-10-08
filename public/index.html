@@ -117,7 +117,7 @@ textarea { min-height: 72px; resize: vertical; }
 .event-item .ei-icon { font-size: 28px; width: 44px; height: 44px; border-radius: 12px; background: var(--accent-soft); display: flex; align-items: center; justify-content: center; flex: none; }
 .event-item.past { opacity: .7; }
 .ei-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.ei-name { font-weight: 700; font-size: 17px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ei-name { font-weight: 700; font-size: 17px; overflow-wrap: anywhere; line-height: 1.25; }
 .when { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--gold-soft); color: var(--gold); white-space: nowrap; }
 .when.past { background: var(--paper); color: var(--ink-soft); }
 
@@ -432,7 +432,8 @@ summary { list-style: none; }
           <h3>Zelf iets organiseren?</h3>
           <p class="small muted">Maak een evenement aan, zet de deelnemers erin en stuur iedereen zijn eigen link.</p>
           <button class="btn primary" type="button" id="new-event">Nieuw evenement</button>
-        </section>`;
+        </section>
+        ${recoverBlock()}`;
     }
     return `
       ${state.newToken ? welcomeLine() : ''}
@@ -446,6 +447,20 @@ summary { list-style: none; }
         <form class="row" id="paste-form" style="flex-wrap:nowrap;margin-top:12px">
           <input type="url" id="paste" placeholder="Plak een link" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Persoonlijke link">
           <button class="btn" type="submit">Openen</button>
+        </form>
+      </details>
+      ${recoverBlock()}`;
+  }
+  // Only offered when the server has a creation code: the code is what proves you may organize.
+  function recoverBlock() {
+    if (!state.needsCode) return '';
+    return `<details class="card" style="gap:0">
+        <summary class="small" style="cursor:pointer;font-weight:600">Organisator? Haal je link terug</summary>
+        <form class="stack" id="recover-form" style="margin-top:12px" autocomplete="off">
+          <p class="small muted">Ben je de link kwijt van een evenement dat jij hebt aangemaakt? Vul de naam in die je toen gebruikte en de aanmaakcode.</p>
+          <label class="field">Jouw naam<input type="text" id="r-name" maxlength="40" value="${esc(store.get('wl.myName', ''))}" required></label>
+          <label class="field">Aanmaakcode<input type="password" id="r-code" autocomplete="off" autocapitalize="off" required></label>
+          <div class="row"><span class="spacer"></span><button class="btn" type="submit" id="r-submit">Link terughalen</button></div>
         </form>
       </details>`;
   }
@@ -461,6 +476,24 @@ summary { list-style: none; }
     if (ne) ne.onclick = () => go({ name: 'create' });
     const io = document.getElementById('install-ok');
     if (io) io.onclick = () => { store.set('wl.installSeen', true); render(); };
+    const rf = document.getElementById('recover-form');
+    if (rf) rf.onsubmit = async ev => {
+      ev.preventDefault();
+      const btn = document.getElementById('r-submit'); btn.disabled = true;
+      try {
+        const name = document.getElementById('r-name').value;
+        const r = await post('/api/recover', { name, code: document.getElementById('r-code').value });
+        store.set('wl.myName', name.trim());
+        const before = state.tokens.length;
+        addTokens(r.tokens);
+        await refresh();
+        const n = state.tokens.length - before;
+        toast(n ? `${n === 1 ? 'Evenement' : n + ' evenementen'} teruggezet op dit toestel` : 'Die evenementen stonden al op dit toestel');
+      } catch (err) {
+        btn.disabled = false;
+        toast(err.message, null, true);
+      }
+    };
     const pf = document.getElementById('paste-form');
     if (pf) pf.onsubmit = async ev => {
       ev.preventDefault();
@@ -834,7 +867,7 @@ summary { list-style: none; }
     if (fromLink.length === 1 && added) { state.newToken = added; state.view = { name: 'home' }; }
     mirrorHash();
     render();
-    fetch('/api/config').then(r => r.json()).then(c => { state.needsCode = !!c.needsCode; if (state.view.name === 'create') render(); }).catch(() => {});
+    fetch('/api/config').then(r => r.json()).then(c => { state.needsCode = !!c.needsCode; if (state.view.name !== 'event') render(); }).catch(() => {});
     await refresh();
     // Opened a fresh personal link: go straight into that event.
     if (state.newToken) {

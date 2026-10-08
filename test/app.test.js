@@ -163,3 +163,12 @@ test('http: static files and no path escape', async () => {
   assert.strictEqual((await fetch(base + '/%2e%2e/lib.js')).status, 404);
   assert.strictEqual((await fetch(base + '/healthz')).status, 200);
 });
+
+test('http: the organizer link comes back with the code and the name', async () => {
+  const r = await post('/api/create', { name: 'Kerst 2026', kind: 'kerst', date: '2026-12-25', organizerName: 'René', participants: ['Sandra'], code: 'pepernoot' });
+  const { token } = await r.json();
+  assert.strictEqual((await post('/api/recover', { name: 'rené', code: 'fout' })).status, 401);
+  assert.strictEqual((await post('/api/recover', { name: 'Sandra', code: 'pepernoot' })).status, 404);
+  const got = await (await post('/api/recover', { name: ' René ', code: 'Pepernoot' })).json();
+  assert.deepStrictEqual(got.tokens, [token]);
+});
