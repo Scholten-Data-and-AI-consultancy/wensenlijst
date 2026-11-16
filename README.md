@@ -10,7 +10,7 @@ Cadeauwensen bijhouden voor Sinterklaas, Kerst, Oud en Nieuw of een verjaardag. 
 - Haalt iemand een wens weg die jij al gekocht had, dan krijg jij daar een melding van
 - Onder **Mijn aankopen** zie je per persoon wat jij koopt, met het totaal
 - Link kwijt als organisator? Met **Organisator? Haal je link terug** op het startscherm krijg je hem terug met je naam en de aanmaakcode. Zonder ingestelde aanmaakcode staat dit uit, anders kon iedereen die je naam kent je evenement overnemen
-- Staan meerdere personen van een evenement op hetzelfde toestel, dan wissel je bovenaan met **Wissel naar ...**. De organisator kan in Beheer met **Open als ...** een evenement bekijken zoals een deelnemer het ziet, en **Van dit toestel halen** haalt een persoon er weer af
+- Staan meerdere personen van een evenement op hetzelfde toestel, dan wissel je bovenaan met **Wissel naar ...**. De organisator kan in Beheer met **Open als ...** een evenement bekijken zoals een deelnemer het ziet. **Van dit toestel halen** haalt een persoon er weer af
 - Wat je aan het typen bent blijft staan als je naar een ander tabblad gaat of als iemand anders tegelijk iets wijzigt
 - De organisator kan deelnemers toevoegen, hernoemen of verwijderen, een link vervangen die bij de verkeerde terechtkwam en het evenement aanpassen of verwijderen
 
