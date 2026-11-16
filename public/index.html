@@ -205,6 +205,7 @@ summary { list-style: none; }
 
   const state = {
     tokens: store.get('wl.tokens', []),
+    lost: store.get('wl.lost', []),     // links the server did not know last time; kept and retried
     events: store.get('wl.cache', []),
     loaded: false,
     online: true,
@@ -265,11 +266,18 @@ summary { list-style: none; }
   }
   async function fetchState() {
     try {
-      const data = await post('/api/state', { tokens: state.tokens });
+      const data = await post('/api/state', { tokens: [...state.tokens, ...state.lost].slice(0, 50) });
       state.version = data.version;
-      // A token the server no longer knows (event deleted, link replaced) is dropped from this phone.
-      if (data.unknown.length) {
-        state.tokens = state.tokens.filter(t => !data.unknown.includes(t));
+      // A link the server does not know (event deleted, link replaced, or a server that came up without
+      // its data) is set aside rather than thrown away, and asked about again on every refresh. If it
+      // works again, it comes back by itself; otherwise it simply stays out of sight.
+      const known = new Set(data.events.map(e => e.token));
+      const active = [...state.tokens, ...state.lost.filter(t => known.has(t))].filter(t => known.has(t));
+      const lost = [...new Set([...state.lost, ...state.tokens])].filter(t => !known.has(t)).slice(-40);
+      if (active.join() !== state.tokens.join() || lost.join() !== state.lost.join()) {
+        state.tokens = [...new Set(active)];
+        state.lost = lost;
+        store.set('wl.lost', state.lost);
         saveTokens();
       }
       state.events = data.events;
