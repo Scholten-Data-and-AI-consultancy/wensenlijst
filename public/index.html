@@ -368,7 +368,51 @@ summary { list-style: none; }
   const defaultName = (kind, date) => kind === 'verjaardag' || kind === 'anders' ? '' : `${KINDS[kind].label} ${date.slice(0, 4)}`;
 
   // ---------- render ----------
+  // Every refresh redraws the screen: coming back to the tab, or a live update from someone else.
+  // Whatever is being typed, the caret and opened blocks are carried over to the new drawing.
+  function fieldKey(el) {
+    if (el.id) return '#' + el.id;
+    if (el.dataset.person != null) return 'person:' + el.dataset.person;
+    const rn = el.closest('[data-rn-form]');
+    if (rn) return 'rn:' + rn.dataset.rnForm;
+    return null;
+  }
+  function snapshot(root) {
+    const fields = {}, open = [];
+    root.querySelectorAll('input, textarea, select').forEach(el => {
+      const k = fieldKey(el); if (k) fields[k] = el.value;
+    });
+    root.querySelectorAll('details[open] > summary').forEach(sm => open.push(sm.textContent.trim()));
+    const a = document.activeElement;
+    const focus = a && root.contains(a) ? { key: fieldKey(a), start: a.selectionStart, end: a.selectionEnd } : null;
+    return { fields, open, focus };
+  }
+  function restore(root, snap) {
+    root.querySelectorAll('input, textarea, select').forEach(el => {
+      const k = fieldKey(el);
+      if (k && k in snap.fields && el.value !== snap.fields[k]) el.value = snap.fields[k];
+    });
+    root.querySelectorAll('details > summary').forEach(sm => { if (snap.open.includes(sm.textContent.trim())) sm.parentElement.open = true; });
+    if (snap.focus && snap.focus.key) {
+      const el = [...root.querySelectorAll('input, textarea, select')].find(x => fieldKey(x) === snap.focus.key);
+      if (el) {
+        el.focus({ preventScroll: true });
+        try { if (snap.focus.start != null) el.setSelectionRange(snap.focus.start, snap.focus.end); } catch {}
+      }
+    }
+  }
+
   function render() {
+    const view = document.getElementById('view');
+    // Only keep fields when the same screen is drawn again, never into a different one.
+    const screen = JSON.stringify([state.view, state.editing]);
+    const snap = view.dataset.screen === screen ? snapshot(view) : null;
+    drawScreen();
+    view.dataset.screen = screen;
+    if (snap) restore(view, snap);
+  }
+
+  function drawScreen() {
     showStatus();
     const view = document.getElementById('view');
     const v = state.view;
@@ -619,6 +663,7 @@ summary { list-style: none; }
         <h2><span aria-hidden="true">${k.icon}</span> ${esc(e.name)}</h2>
         <div class="row small muted"><span>${esc(longDate(e.date))}</span><span class="when ${daysUntil(e.date) < 0 ? 'past' : ''}">${whenLabel(e.date)}</span></div>
         <p class="small muted">Je bent hier als <strong style="color:var(--ink)">${esc(e.me.name)}</strong>${e.me.isOrganizer ? ', de organisator' : ''}.</p>
+        ${switchRow(e)}
       </div>
       ${deletedNotices.map(w => `<section class="notice">
         <span><strong>Van het lijstje gehaald.</strong> ${esc(nameOf(e, w.ownerId))} heeft “${esc(w.title)}” verwijderd, maar jij had het al gekocht.</span>
@@ -626,6 +671,17 @@ summary { list-style: none; }
       </section>`).join('')}
       <nav class="chips" aria-label="Lijstjes">${tabs}</nav>
       ${body}`;
+  }
+  // Other people of this same event whose link is on this device: one tap to become them.
+  function switchRow(e) {
+    const alts = state.events.filter(x => x.id === e.id && x.token !== e.token);
+    const leave = state.confirm === 'leave'
+      ? `<div class="notice" style="margin-top:6px"><span class="small">${esc(e.me.name)} van dit toestel halen?${e.me.isOrganizer ? ' Zonder deze link kom je alleen met de aanmaakcode terug in Beheer.' : ' Je hebt daarna de link weer nodig om terug te komen.'}</span><div class="row"><button class="btn sm ghost" type="button" data-cancel>Nee</button><button class="btn sm danger" type="button" id="leave-yes">Ja, haal eraf</button></div></div>`
+      : '';
+    return `<div class="row small" style="gap:6px">
+        ${alts.map(x => `<button class="btn sm" type="button" data-switch="${esc(x.token)}">Wissel naar ${esc(x.me.name)}${x.me.isOrganizer ? ' (organisator)' : ''}</button>`).join('')}
+        <button class="btn sm ghost" type="button" id="leave">Van dit toestel halen</button>
+      </div>${leave}`;
   }
   const nameOf = (e, id) => (e.participants.find(p => p.id === id) || {}).name || 'Iemand';
 
@@ -726,6 +782,7 @@ summary { list-style: none; }
       let extra = '';
       if (c === 'rm:' + p.id) extra = `<div class="row" style="width:100%"><span class="small">${esc(p.name)} en de wensen van ${esc(p.name)} verwijderen?</span><span class="spacer"></span><button class="btn sm ghost" type="button" data-cancel>Nee</button><button class="btn sm danger" type="button" data-rm-yes="${esc(p.id)}">Ja</button></div>`;
       else if (c === 'nl:' + p.id) extra = `<div class="row" style="width:100%"><span class="small">De oude link van ${esc(p.name)} stopt dan met werken.</span><span class="spacer"></span><button class="btn sm ghost" type="button" data-cancel>Nee</button><button class="btn sm" type="button" data-nl-yes="${esc(p.id)}">Nieuwe link</button></div>`;
+      else if (c === 'as:' + p.id) extra = `<div class="row" style="width:100%"><span class="small">Als ${esc(p.name)} zie je ook wat er van jouw eigen lijstje gekocht is. Doe dit alleen om te testen.</span><span class="spacer"></span><button class="btn sm ghost" type="button" data-cancel>Nee</button><button class="btn sm" type="button" data-as-yes="${esc(p.id)}">Open als ${esc(p.name)}</button></div>`;
       else if (c === 'rn:' + p.id) extra = `<form class="row" style="width:100%;flex-wrap:nowrap" data-rn-form="${esc(p.id)}"><input type="text" maxlength="40" value="${esc(p.name)}" aria-label="Nieuwe naam"><button class="btn sm" type="submit">Opslaan</button></form>`;
       const menuOpen = c === 'menu:' + p.id;
       return `<div class="person">
@@ -737,7 +794,8 @@ summary { list-style: none; }
         </div>
         ${menuOpen ? `<div class="row">
           <button class="btn sm" type="button" data-rn="${esc(p.id)}">Naam wijzigen</button>
-          ${isMe ? '' : `<button class="btn sm" type="button" data-nl="${esc(p.id)}">Nieuwe link</button>
+          ${isMe ? '' : `<button class="btn sm" type="button" data-as="${esc(p.id)}">Open als ${esc(p.name)}</button>
+          <button class="btn sm" type="button" data-nl="${esc(p.id)}">Nieuwe link</button>
           <button class="btn sm danger" type="button" data-rm="${esc(p.id)}">Verwijderen</button>`}
         </div>` : ''}
         ${extra}
@@ -832,6 +890,26 @@ summary { list-style: none; }
     all('[data-copy]', b => b.onclick = async () => {
       const p = find(b.dataset.copy);
       toast(await copy(shareText(e, p)) ? `Bericht voor ${p.name} gekopieerd` : 'Kopiëren lukte niet', null, false);
+    });
+    all('[data-switch]', b => b.onclick = () => go({ name: 'event', token: b.dataset.switch, tab: 'mine' }));
+    const lv = $('leave');
+    if (lv) lv.onclick = () => { state.confirm = state.confirm === 'leave' ? null : 'leave'; render(); };
+    const ly = $('leave-yes');
+    if (ly) ly.onclick = () => {
+      state.tokens = state.tokens.filter(t => t !== e.token);
+      state.events = state.events.filter(x => x.token !== e.token);
+      saveTokens(); store.set('wl.cache', state.events);
+      const next = state.events.find(x => x.id === e.id);
+      toast(`${e.me.name} is van dit toestel gehaald`);
+      go(next ? { name: 'event', token: next.token, tab: 'mine' } : { name: 'home' });
+    };
+    all('[data-as]', b => b.onclick = () => { state.confirm = 'as:' + b.dataset.as; render(); });
+    all('[data-as-yes]', b => b.onclick = async () => {
+      const p = find(b.dataset.asYes);
+      addTokens([p.token]);
+      await refresh();
+      toast(`Je bent nu ${p.name}. Met Wissel naar ${e.me.name} ga je terug.`);
+      go({ name: 'event', token: p.token, tab: 'mine' });
     });
     all('[data-menu]', b => b.onclick = () => { state.confirm = state.confirm === 'menu:' + b.dataset.menu ? null : 'menu:' + b.dataset.menu; render(); });
     all('[data-copy-own]', b => b.onclick = async () => {
