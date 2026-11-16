@@ -115,6 +115,7 @@ function viewEvent(event, me) {
     createdAt: event.createdAt,
     organizerId: event.organizerId,
     me: { id: me.id, name: me.name, isOrganizer },
+    organizerName: (event.participants.find(p => p.id === event.organizerId) || {}).name || '',
     participants: event.participants.map(p => isOrganizer ? { id: p.id, name: p.name, token: p.token } : { id: p.id, name: p.name }),
     wishes,
   };
@@ -242,15 +243,18 @@ function applyOp(db, event, me, op) {
   }
 }
 
+// Names compared the way people type them: case, accents and extra spaces do not count (Rene finds René).
+const loose = v => cleanText(v, LIMITS.name).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
 // The organizer tokens of every event this name organizes. Used to win back the organizer link on a new
 // device; the caller has already checked the creation code, which is what makes this safe.
 function organizerTokens(db, name) {
-  const want = cleanText(name, LIMITS.name).toLowerCase();
+  const want = loose(name);
   if (!want) return [];
   const out = [];
   for (const e of db.events) {
     const org = e.participants.find(p => p.id === e.organizerId);
-    if (org && org.name.toLowerCase() === want) out.push(org.token);
+    if (org && loose(org.name) === want) out.push(org.token);
   }
   return out;
 }

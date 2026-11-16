@@ -662,7 +662,7 @@ summary { list-style: none; }
       <div class="event-head">
         <h2><span aria-hidden="true">${k.icon}</span> ${esc(e.name)}</h2>
         <div class="row small muted"><span>${esc(longDate(e.date))}</span><span class="when ${daysUntil(e.date) < 0 ? 'past' : ''}">${whenLabel(e.date)}</span></div>
-        <p class="small muted">Je bent hier als <strong style="color:var(--ink)">${esc(e.me.name)}</strong>${e.me.isOrganizer ? ', de organisator' : ''}.</p>
+        <p class="small muted">Je bent hier als <strong style="color:var(--ink)">${esc(e.me.name)}</strong>${e.me.isOrganizer ? ', de organisator' : `. Georganiseerd door ${esc(e.organizerName)}`}.</p>
         ${switchRow(e)}
       </div>
       ${deletedNotices.map(w => `<section class="notice">

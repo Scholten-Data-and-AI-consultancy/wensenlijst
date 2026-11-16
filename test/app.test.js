@@ -42,8 +42,9 @@ test('the wisher never sees that a wish was bought, the others do', () => {
   assert.strictEqual(forRene.wishes[0].price, 12.5);
 });
 
-test('only the organizer sees the tokens', () => {
+test('only the organizer sees the tokens, everyone sees who organizes', () => {
   const { event, rene, anna } = setup();
+  assert.strictEqual(lib.viewEvent(event, anna).organizerName, 'Rene');
   assert.ok(lib.viewEvent(event, rene).participants.every(p => p.token));
   assert.ok(lib.viewEvent(event, anna).participants.every(p => !('token' in p)));
 });
@@ -169,6 +170,10 @@ test('http: the organizer link comes back with the code and the name', async () 
   const { token } = await r.json();
   assert.strictEqual((await post('/api/recover', { name: 'rené', code: 'fout' })).status, 401);
   assert.strictEqual((await post('/api/recover', { name: 'Sandra', code: 'pepernoot' })).status, 404);
+  // accents and case do not count, so René and Rene (the earlier Sinterklaas test) both come back
   const got = await (await post('/api/recover', { name: ' René ', code: 'Pepernoot' })).json();
-  assert.deepStrictEqual(got.tokens, [token]);
+  const loose = await (await post('/api/recover', { name: 'RENE', code: 'pepernoot' })).json();
+  assert.ok(got.tokens.includes(token));
+  assert.deepStrictEqual(loose.tokens, got.tokens);
+  assert.strictEqual(got.tokens.length, 2);
 });
